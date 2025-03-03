@@ -3,8 +3,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { NAV_ITEMS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useLocation, Link } from "react-router-dom";
-import { LucideIcon } from "lucide-react";
-import * as Icons from "lucide-react";
+import { 
+  Home, 
+  Users, 
+  Receipt, 
+  BarChart3, 
+  Settings, 
+  UserCircle,
+  LogOut 
+} from "lucide-react";
 
 interface SidebarProps {
   open: boolean;
@@ -18,6 +25,16 @@ export function Sidebar({ open }: SidebarProps) {
   const filteredNavItems = NAV_ITEMS.filter((item) =>
     hasPermission(item.requiredRoles)
   );
+
+  // Map icon names to actual Lucide icon components
+  const iconMap = {
+    home: Home,
+    users: Users,
+    receipt: Receipt,
+    barChart3: BarChart3,
+    settings: Settings,
+    userCircle: UserCircle
+  };
 
   return (
     <aside
@@ -44,10 +61,8 @@ export function Sidebar({ open }: SidebarProps) {
         <nav className="flex-1 py-2 overflow-y-auto">
           <ul className="space-y-1 px-2">
             {filteredNavItems.map((item) => {
-              // Get dynamic icon from Lucide
-              const IconComponent = (Icons as Record<string, LucideIcon>)[
-                item.icon.charAt(0).toUpperCase() + item.icon.slice(1)
-              ];
+              // Get the icon component from our map
+              const IconComponent = iconMap[item.icon as keyof typeof iconMap] || Home;
 
               return (
                 <li key={item.href}>
@@ -80,7 +95,7 @@ export function Sidebar({ open }: SidebarProps) {
               "p-2 bg-muted/50 rounded-md text-sm flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             )}
           >
-            <Icons.LogOut className="w-5 h-5" />
+            <LogOut className="w-5 h-5" />
             {open && (
               <span className="md:opacity-100 transition-opacity duration-200">
                 Log Out
