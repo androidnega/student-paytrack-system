@@ -31,18 +31,28 @@ import {
   Plus, 
   CalendarIcon 
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
 import { PAYMENT_METHODS } from "@/lib/constants";
 import { mockPayments, mockStudents } from "@/data/mockData";
 import { Payment } from "@/types";
+import { PaymentForm } from "@/components/PaymentForm";
 
 export default function Payments() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('all');
   const [sortOrder, setSortOrder] = useState('newest');
+  const [payments, setPayments] = useState<Payment[]>(mockPayments);
+  const [isAddingPayment, setIsAddingPayment] = useState(false);
 
   // Filter payments based on search and filters
-  const filteredPayments = mockPayments.filter(payment => {
+  const filteredPayments = payments.filter(payment => {
     // Find student to get access to their name and index number
     const student = mockStudents.find(s => s.id === payment.studentId);
     if (!student) return false;
@@ -78,6 +88,34 @@ export default function Payments() {
     }
   };
 
+  // Handle payment form submission
+  const handleAddPayment = (formData: any) => {
+    // Create a new payment entry
+    const newPayment: Payment = {
+      id: `payment-${Date.now()}`,
+      studentId: formData.studentId,
+      amount: formData.amount,
+      paymentMethod: formData.paymentMethod,
+      transactionCode: formData.transactionCode,
+      paymentDate: new Date(),
+      recordedBy: "current-user-id", // This would come from auth context in a real app
+      notes: formData.notes,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    // Add new payment to the list
+    setPayments([newPayment, ...payments]);
+    
+    // Close the dialog
+    setIsAddingPayment(false);
+    
+    // Show success message
+    toast.success(`Payment of ${formatCurrency(formData.amount)} recorded successfully`, {
+      description: `Transaction code: ${formData.transactionCode}`,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -87,7 +125,7 @@ export default function Payments() {
             <FileDown className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Button>
+          <Button onClick={() => setIsAddingPayment(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Record Payment
           </Button>
@@ -149,35 +187,56 @@ export default function Payments() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sortedPayments.map((payment) => {
-                  const student = mockStudents.find(s => s.id === payment.studentId);
-                  if (!student) return null;
-                  
-                  return (
-                    <TableRow key={payment.id}>
-                      <TableCell>{formatDate(new Date(payment.paymentDate))}</TableCell>
-                      <TableCell className="font-medium">{student.name}</TableCell>
-                      <TableCell className="hidden md:table-cell">{student.indexNumber}</TableCell>
-                      <TableCell className="font-medium">{formatCurrency(payment.amount)}</TableCell>
-                      <TableCell className="hidden md:table-cell">{payment.transactionCode}</TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        <Badge className={cn(getPaymentMethodColor(payment.paymentMethod))}>
-                          {payment.paymentMethod === PAYMENT_METHODS.MOMO ? "Mobile Money" : "Cash"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="ghost" size="sm">
-                          Details
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                {sortedPayments.length > 0 ? (
+                  sortedPayments.map((payment) => {
+                    const student = mockStudents.find(s => s.id === payment.studentId);
+                    if (!student) return null;
+                    
+                    return (
+                      <TableRow key={payment.id}>
+                        <TableCell>{formatDate(new Date(payment.paymentDate))}</TableCell>
+                        <TableCell className="font-medium">{student.name}</TableCell>
+                        <TableCell className="hidden md:table-cell">{student.indexNumber}</TableCell>
+                        <TableCell className="font-medium">{formatCurrency(payment.amount)}</TableCell>
+                        <TableCell className="hidden md:table-cell">{payment.transactionCode}</TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          <Badge className={cn(getPaymentMethodColor(payment.paymentMethod))}>
+                            {payment.paymentMethod === PAYMENT_METHODS.MOMO ? "Mobile Money" : "Cash"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="ghost" size="sm">
+                            Details
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={7} className="h-24 text-center">
+                      No payments found
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </div>
         </CardContent>
       </Card>
+
+      {/* Add Payment Dialog */}
+      <Dialog open={isAddingPayment} onOpenChange={setIsAddingPayment}>
+        <DialogContent className="sm:max-w-[550px]">
+          <DialogHeader>
+            <DialogTitle>Record New Payment</DialogTitle>
+          </DialogHeader>
+          <PaymentForm 
+            onSubmit={handleAddPayment}
+            onCancel={() => setIsAddingPayment(false)} 
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
