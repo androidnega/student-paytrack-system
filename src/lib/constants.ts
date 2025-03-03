@@ -56,6 +56,22 @@ export const PAYMENT_STATUS = {
 
 export type PaymentStatus = typeof PAYMENT_STATUS[keyof typeof PAYMENT_STATUS];
 
+// Payer type constants
+export const PAYER_TYPES = {
+  SELF: "self",
+  THIRD_PARTY: "third_party",
+} as const;
+
+export type PayerType = typeof PAYER_TYPES[keyof typeof PAYER_TYPES];
+
+// Third party type constants
+export const THIRD_PARTY_TYPES = {
+  STUDENT: "student",
+  RELATIVE: "relative",
+} as const;
+
+export type ThirdPartyType = typeof THIRD_PARTY_TYPES[keyof typeof THIRD_PARTY_TYPES];
+
 // Mock data for development
 export const CURRENT_ACADEMIC_YEAR = "24";
 

@@ -1,5 +1,5 @@
 
-import { Group, PaymentMethod, PaymentPurpose, PaymentStatus, Role, Specialization } from "@/lib/constants";
+import { Group, PaymentMethod, PaymentPurpose, PaymentStatus, Role, Specialization, PayerType, ThirdPartyType } from "@/lib/constants";
 
 export interface User {
   id: string;
@@ -49,6 +49,9 @@ export interface Payment {
   amount: number;
   paymentMethod: PaymentMethod;
   paymentPurpose: PaymentPurpose;
+  payerType?: PayerType;
+  thirdPartyType?: ThirdPartyType;
+  thirdPartyDetails?: string;
   itemId?: string; // Can be courseId or other item id based on purpose
   transactionCode: string;
   paymentDate: Date;
