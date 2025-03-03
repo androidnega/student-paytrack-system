@@ -1,7 +1,6 @@
-
-import { Group, GROUPS, PAYMENT_METHODS, PAYMENT_STATUS, ROLES, SPECIALIZATIONS } from "@/lib/constants";
+import { Group, GROUPS, PAYMENT_METHODS, PAYMENT_PURPOSES, PAYMENT_STATUS, ROLES, SPECIALIZATIONS } from "@/lib/constants";
 import { generateTransactionCode } from "@/lib/utils";
-import { DashboardStats, Payment, Student, User } from "@/types";
+import { Course, DashboardStats, Lecturer, Payment, Student, User } from "@/types";
 
 // Mock Users
 export const mockUsers: User[] = [
@@ -31,6 +30,72 @@ export const mockUsers: User[] = [
     role: ROLES.ASSISTANT_REP,
     createdAt: new Date("2023-01-03"),
     lastLogin: new Date(),
+  },
+];
+
+// Mock Lecturers
+export const mockLecturers: Lecturer[] = [
+  {
+    id: "lecturer-1",
+    name: "Dr. Kwame Asante",
+    email: "kasante@ttu.edu.gh",
+    phone: "+233201234570",
+  },
+  {
+    id: "lecturer-2",
+    name: "Prof. Abena Mensah",
+    email: "amensah@ttu.edu.gh",
+    phone: "+233201234571",
+  },
+  {
+    id: "lecturer-3",
+    name: "Dr. Kofi Owusu",
+    email: "kowusu@ttu.edu.gh",
+    phone: "+233201234572",
+  },
+];
+
+// Mock Courses
+export const mockCourses: Course[] = [
+  {
+    id: "course-1",
+    code: "ITC123",
+    name: "Introduction to Programming",
+    creditHours: 3,
+    venue: "Room A1",
+    lecturerId: "lecturer-1",
+  },
+  {
+    id: "course-2",
+    code: "ITC234",
+    name: "Database Management Systems",
+    creditHours: 3,
+    venue: "Room B2",
+    lecturerId: "lecturer-2",
+  },
+  {
+    id: "course-3",
+    code: "ITC345",
+    name: "Web Development",
+    creditHours: 4,
+    venue: "Computer Lab 1",
+    lecturerId: "lecturer-3",
+  },
+  {
+    id: "course-4",
+    code: "ITC456",
+    name: "Networking Fundamentals",
+    creditHours: 3,
+    venue: "Room C3",
+    lecturerId: "lecturer-1",
+  },
+  {
+    id: "course-5",
+    code: "ITC567",
+    name: "System Analysis and Design",
+    creditHours: 3,
+    venue: "Room D4",
+    lecturerId: "lecturer-2",
   },
 ];
 
@@ -102,10 +167,11 @@ export function generateMockStudents(count: number = 50): Student[] {
   return students;
 }
 
-// Generate mock payment data
+// Generate mock payment data with payment purpose
 export function generateMockPayments(students: Student[]): Payment[] {
   const payments: Payment[] = [];
   const recordedByUsers = mockUsers.map(user => user.id);
+  const purposes = Object.values(PAYMENT_PURPOSES);
   
   students.forEach(student => {
     if (student.totalAmountPaid > 0) {
@@ -130,11 +196,22 @@ export function generateMockPayments(students: Student[]): Payment[] {
         const paymentDate = new Date();
         paymentDate.setDate(paymentDate.getDate() - daysAgo);
         
+        // Random payment purpose
+        const purpose = purposes[Math.floor(Math.random() * purposes.length)];
+        
+        // If book or handout, assign a course
+        let itemId = undefined;
+        if (purpose === PAYMENT_PURPOSES.BOOK || purpose === PAYMENT_PURPOSES.HANDOUT) {
+          itemId = mockCourses[Math.floor(Math.random() * mockCourses.length)].id;
+        }
+        
         payments.push({
           id: `payment-${payments.length + 1}`,
           studentId: student.id,
           amount,
           paymentMethod: Math.random() > 0.5 ? PAYMENT_METHODS.MOMO : PAYMENT_METHODS.CASH,
+          paymentPurpose: purpose,
+          itemId,
           transactionCode: generateTransactionCode(),
           paymentDate,
           recordedBy: recordedByUsers[Math.floor(Math.random() * recordedByUsers.length)],

@@ -21,8 +21,8 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { PAYMENT_METHODS } from '@/lib/constants';
-import { mockStudents } from '@/data/mockData';
+import { PAYMENT_METHODS, PAYMENT_PURPOSES } from '@/lib/constants';
+import { mockStudents, mockCourses } from '@/data/mockData';
 import { generateTransactionCode, formatCurrency } from '@/lib/utils';
 
 // Define the form schema with validation
@@ -37,6 +37,15 @@ const paymentFormSchema = z.object({
   paymentMethod: z.enum([PAYMENT_METHODS.MOMO, PAYMENT_METHODS.CASH], {
     required_error: "Payment method is required",
   }),
+  paymentPurpose: z.enum([
+    PAYMENT_PURPOSES.BOOK, 
+    PAYMENT_PURPOSES.HANDOUT, 
+    PAYMENT_PURPOSES.TRIP, 
+    PAYMENT_PURPOSES.OTHER
+  ], {
+    required_error: "Payment purpose is required",
+  }),
+  itemId: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -49,6 +58,7 @@ interface PaymentFormProps {
 
 export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
+  const [showCourseSelection, setShowCourseSelection] = useState(false);
   
   // Initialize form with default values
   const form = useForm<PaymentFormValues>({
@@ -57,12 +67,15 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
       studentId: "",
       amount: undefined,
       paymentMethod: PAYMENT_METHODS.MOMO,
+      paymentPurpose: PAYMENT_PURPOSES.BOOK,
+      itemId: undefined,
       notes: "",
     },
   });
 
   // Watch for student selection changes
   const studentId = form.watch('studentId');
+  const paymentPurpose = form.watch('paymentPurpose');
   
   useEffect(() => {
     if (studentId) {
@@ -72,6 +85,18 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
       setSelectedStudent(null);
     }
   }, [studentId]);
+
+  // Determine if course selection should be shown
+  useEffect(() => {
+    setShowCourseSelection(
+      paymentPurpose === PAYMENT_PURPOSES.BOOK || 
+      paymentPurpose === PAYMENT_PURPOSES.HANDOUT
+    );
+    
+    if (!(paymentPurpose === PAYMENT_PURPOSES.BOOK || paymentPurpose === PAYMENT_PURPOSES.HANDOUT)) {
+      form.setValue('itemId', undefined);
+    }
+  }, [paymentPurpose, form]);
 
   // Handle form submission
   const handleSubmit = (values: PaymentFormValues) => {
@@ -138,6 +163,63 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
               </div>
             </div>
           </div>
+        )}
+
+        <FormField
+          control={form.control}
+          name="paymentPurpose"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Payment Purpose</FormLabel>
+              <Select 
+                onValueChange={field.onChange} 
+                defaultValue={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select payment purpose" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value={PAYMENT_PURPOSES.BOOK}>Book</SelectItem>
+                  <SelectItem value={PAYMENT_PURPOSES.HANDOUT}>Handout</SelectItem>
+                  <SelectItem value={PAYMENT_PURPOSES.TRIP}>Trip</SelectItem>
+                  <SelectItem value={PAYMENT_PURPOSES.OTHER}>Other</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {showCourseSelection && (
+          <FormField
+            control={form.control}
+            name="itemId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Select Course</FormLabel>
+                <Select 
+                  onValueChange={field.onChange} 
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a course" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {mockCourses.map((course) => (
+                      <SelectItem key={course.id} value={course.id}>
+                        {course.code} - {course.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         )}
 
         <FormField

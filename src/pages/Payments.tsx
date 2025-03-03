@@ -39,14 +39,15 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
-import { PAYMENT_METHODS } from "@/lib/constants";
-import { mockPayments, mockStudents } from "@/data/mockData";
+import { PAYMENT_METHODS, PAYMENT_PURPOSES } from "@/lib/constants";
+import { mockPayments, mockStudents, mockCourses } from "@/data/mockData";
 import { Payment } from "@/types";
 import { PaymentForm } from "@/components/PaymentForm";
 
 export default function Payments() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('all');
+  const [selectedPaymentPurpose, setSelectedPaymentPurpose] = useState('all');
   const [sortOrder, setSortOrder] = useState('newest');
   const [payments, setPayments] = useState<Payment[]>(mockPayments);
   const [isAddingPayment, setIsAddingPayment] = useState(false);
@@ -64,7 +65,10 @@ export default function Payments() {
     const matchesPaymentMethod = selectedPaymentMethod === 'all' || 
       payment.paymentMethod === selectedPaymentMethod;
     
-    return matchesSearch && matchesPaymentMethod;
+    const matchesPaymentPurpose = selectedPaymentPurpose === 'all' || 
+      payment.paymentPurpose === selectedPaymentPurpose;
+    
+    return matchesSearch && matchesPaymentMethod && matchesPaymentPurpose;
   });
 
   // Sort payments
@@ -88,6 +92,38 @@ export default function Payments() {
     }
   };
 
+  // Function to get payment purpose badge color
+  const getPaymentPurposeColor = (purpose: string) => {
+    switch(purpose) {
+      case PAYMENT_PURPOSES.BOOK:
+        return "bg-green-500/10 text-green-500 hover:bg-green-500/20";
+      case PAYMENT_PURPOSES.HANDOUT:
+        return "bg-amber-500/10 text-amber-500 hover:bg-amber-500/20";
+      case PAYMENT_PURPOSES.TRIP:
+        return "bg-sky-500/10 text-sky-500 hover:bg-sky-500/20";
+      case PAYMENT_PURPOSES.OTHER:
+        return "bg-gray-500/10 text-gray-500 hover:bg-gray-500/20";
+      default:
+        return "bg-gray-500/10 text-gray-500 hover:bg-gray-500/20";
+    }
+  };
+
+  // Get payment purpose display name
+  const getPaymentPurposeDisplay = (purpose: string) => {
+    switch(purpose) {
+      case PAYMENT_PURPOSES.BOOK:
+        return "Book";
+      case PAYMENT_PURPOSES.HANDOUT:
+        return "Handout";
+      case PAYMENT_PURPOSES.TRIP:
+        return "Trip";
+      case PAYMENT_PURPOSES.OTHER:
+        return "Other";
+      default:
+        return purpose;
+    }
+  };
+
   // Handle payment form submission
   const handleAddPayment = (formData: any) => {
     // Create a new payment entry
@@ -96,6 +132,8 @@ export default function Payments() {
       studentId: formData.studentId,
       amount: formData.amount,
       paymentMethod: formData.paymentMethod,
+      paymentPurpose: formData.paymentPurpose,
+      itemId: formData.itemId,
       transactionCode: formData.transactionCode,
       paymentDate: new Date(),
       recordedBy: "current-user-id", // This would come from auth context in a real app
@@ -160,6 +198,20 @@ export default function Payments() {
                 </SelectContent>
               </Select>
 
+              <Select value={selectedPaymentPurpose} onValueChange={setSelectedPaymentPurpose}>
+                <SelectTrigger className="w-[180px]">
+                  <Filter className="mr-2 h-4 w-4" />
+                  <span>Payment Purpose</span>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Purposes</SelectItem>
+                  <SelectItem value={PAYMENT_PURPOSES.BOOK}>Book</SelectItem>
+                  <SelectItem value={PAYMENT_PURPOSES.HANDOUT}>Handout</SelectItem>
+                  <SelectItem value={PAYMENT_PURPOSES.TRIP}>Trip</SelectItem>
+                  <SelectItem value={PAYMENT_PURPOSES.OTHER}>Other</SelectItem>
+                </SelectContent>
+              </Select>
+
               <Select value={sortOrder} onValueChange={setSortOrder}>
                 <SelectTrigger className="w-[150px]">
                   <CalendarIcon className="mr-2 h-4 w-4" />
@@ -181,7 +233,8 @@ export default function Payments() {
                   <TableHead>Student</TableHead>
                   <TableHead className="hidden md:table-cell">Index Number</TableHead>
                   <TableHead>Amount</TableHead>
-                  <TableHead className="hidden md:table-cell">Transaction Code</TableHead>
+                  <TableHead className="hidden md:table-cell">Purpose</TableHead>
+                  <TableHead className="hidden lg:table-cell">Course/Item</TableHead>
                   <TableHead className="hidden md:table-cell">Method</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -192,13 +245,28 @@ export default function Payments() {
                     const student = mockStudents.find(s => s.id === payment.studentId);
                     if (!student) return null;
                     
+                    let courseInfo = "";
+                    if (payment.itemId && (payment.paymentPurpose === PAYMENT_PURPOSES.BOOK || payment.paymentPurpose === PAYMENT_PURPOSES.HANDOUT)) {
+                      const course = mockCourses.find(c => c.id === payment.itemId);
+                      if (course) {
+                        courseInfo = `${course.code} - ${course.name}`;
+                      }
+                    }
+                    
                     return (
                       <TableRow key={payment.id}>
                         <TableCell>{formatDate(new Date(payment.paymentDate))}</TableCell>
                         <TableCell className="font-medium">{student.name}</TableCell>
                         <TableCell className="hidden md:table-cell">{student.indexNumber}</TableCell>
                         <TableCell className="font-medium">{formatCurrency(payment.amount)}</TableCell>
-                        <TableCell className="hidden md:table-cell">{payment.transactionCode}</TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          <Badge className={cn(getPaymentPurposeColor(payment.paymentPurpose))}>
+                            {getPaymentPurposeDisplay(payment.paymentPurpose)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell">
+                          {courseInfo || "-"}
+                        </TableCell>
                         <TableCell className="hidden md:table-cell">
                           <Badge className={cn(getPaymentMethodColor(payment.paymentMethod))}>
                             {payment.paymentMethod === PAYMENT_METHODS.MOMO ? "Mobile Money" : "Cash"}
@@ -214,7 +282,7 @@ export default function Payments() {
                   })
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={7} className="h-24 text-center">
+                    <TableCell colSpan={8} className="h-24 text-center">
                       No payments found
                     </TableCell>
                   </TableRow>

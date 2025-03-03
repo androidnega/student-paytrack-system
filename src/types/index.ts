@@ -1,5 +1,4 @@
-
-import { Group, PaymentMethod, PaymentStatus, Role, Specialization } from "@/lib/constants";
+import { Group, PaymentMethod, PaymentPurpose, PaymentStatus, Role, Specialization } from "@/lib/constants";
 
 export interface User {
   id: string;
@@ -27,11 +26,29 @@ export interface Student {
   updatedAt: Date;
 }
 
+export interface Course {
+  id: string;
+  code: string;
+  name: string;
+  creditHours: number;
+  venue: string;
+  lecturerId: string;
+}
+
+export interface Lecturer {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+}
+
 export interface Payment {
   id: string;
   studentId: string;
   amount: number;
   paymentMethod: PaymentMethod;
+  paymentPurpose: PaymentPurpose;
+  itemId?: string; // Can be courseId or other item id based on purpose
   transactionCode: string;
   paymentDate: Date;
   recordedBy: string; // User ID of the staff who recorded the payment

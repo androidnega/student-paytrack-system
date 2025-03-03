@@ -77,6 +77,12 @@ export const NAV_ITEMS: NavItem[] = [
     requiredRoles: [ROLES.SUPER_ADMIN, ROLES.MAIN_REP, ROLES.ASSISTANT_REP],
   },
   {
+    title: "Courses",
+    href: "/courses",
+    icon: "book-open",
+    requiredRoles: [ROLES.SUPER_ADMIN, ROLES.MAIN_REP],
+  },
+  {
     title: "Reports",
     href: "/reports",
     icon: "bar-chart",

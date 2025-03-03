@@ -14,6 +14,8 @@ import Payments from "./pages/Payments";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Users from "./pages/Users";
+import Courses from "./pages/Courses";
+import PaymentVerification from "./pages/PaymentVerification";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,12 +30,14 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/verify-payment" element={<PaymentVerification />} />
             
             {/* Protected routes */}
             <Route path="/" element={<Layout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/students" element={<Students />} />
               <Route path="/payments" element={<Payments />} />
+              <Route path="/courses" element={<Courses />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/users" element={<Users />} />
