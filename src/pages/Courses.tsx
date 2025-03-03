@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -125,7 +124,6 @@ export default function Courses() {
 
   const onSubmit = (values: CourseFormValues) => {
     if (isEditingCourse && selectedCourse) {
-      // Update existing course
       setCourses(prevCourses => 
         prevCourses.map(course => 
           course.id === selectedCourse.id 
@@ -136,10 +134,13 @@ export default function Courses() {
       setIsEditingCourse(false);
       toast.success("Course updated successfully");
     } else {
-      // Add new course
       const newCourse: Course = {
         id: `course-${Date.now()}`,
-        ...values,
+        code: values.code,
+        name: values.name,
+        creditHours: values.creditHours,
+        venue: values.venue,
+        lecturerId: values.lecturerId,
       };
       setCourses([...courses, newCourse]);
       setIsAddingCourse(false);
@@ -214,7 +215,6 @@ export default function Courses() {
         </CardContent>
       </Card>
 
-      {/* Add/Edit Course Dialog */}
       <Dialog open={isAddingCourse || isEditingCourse} onOpenChange={(open) => {
         if (!open) {
           setIsAddingCourse(false);
@@ -340,7 +340,6 @@ export default function Courses() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={!!confirmDelete} onOpenChange={(open) => {
         if (!open) setConfirmDelete(null);
       }}>

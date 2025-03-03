@@ -37,6 +37,16 @@ export const PAYMENT_METHODS = {
 
 export type PaymentMethod = typeof PAYMENT_METHODS[keyof typeof PAYMENT_METHODS];
 
+// Payment purpose constants
+export const PAYMENT_PURPOSES = {
+  BOOK: "book",
+  HANDOUT: "handout",
+  TRIP: "trip",
+  OTHER: "other",
+} as const;
+
+export type PaymentPurpose = typeof PAYMENT_PURPOSES[keyof typeof PAYMENT_PURPOSES];
+
 // Payment status constants
 export const PAYMENT_STATUS = {
   FULL: "full",
