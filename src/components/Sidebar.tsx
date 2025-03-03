@@ -9,7 +9,7 @@ import {
   Receipt, 
   BarChart3, 
   Settings, 
-  UserCircle,
+  UserCog,
   LogOut 
 } from "lucide-react";
 
@@ -19,7 +19,7 @@ interface SidebarProps {
 
 export function Sidebar({ open }: SidebarProps) {
   const location = useLocation();
-  const { user, hasPermission } = useAuth();
+  const { user, hasPermission, logout } = useAuth();
 
   // Filter navigation items based on user role
   const filteredNavItems = NAV_ITEMS.filter((item) =>
@@ -28,12 +28,12 @@ export function Sidebar({ open }: SidebarProps) {
 
   // Map icon names to actual Lucide icon components
   const iconMap = {
-    home: Home,
-    users: Users,
-    receipt: Receipt,
-    barChart3: BarChart3,
-    settings: Settings,
-    userCircle: UserCircle
+    "layout-dashboard": Home,
+    "users": Users,
+    "receipt": Receipt,
+    "bar-chart": BarChart3,
+    "settings": Settings,
+    "user-cog": UserCog
   };
 
   return (
@@ -91,6 +91,7 @@ export function Sidebar({ open }: SidebarProps) {
 
         <div className="p-4 mt-auto">
           <div
+            onClick={() => logout()}
             className={cn(
               "p-2 bg-muted/50 rounded-md text-sm flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             )}

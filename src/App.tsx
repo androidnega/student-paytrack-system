@@ -9,6 +9,11 @@ import { Layout } from "@/components/Layout";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import Students from "./pages/Students";
+import Payments from "./pages/Payments";
+import Reports from "./pages/Reports";
+import Settings from "./pages/Settings";
+import Users from "./pages/Users";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,11 +32,11 @@ const App = () => (
             {/* Protected routes */}
             <Route path="/" element={<Layout />}>
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/students" element={<NotFound />} />
-              <Route path="/payments" element={<NotFound />} />
-              <Route path="/reports" element={<NotFound />} />
-              <Route path="/settings" element={<NotFound />} />
-              <Route path="/users" element={<NotFound />} />
+              <Route path="/students" element={<Students />} />
+              <Route path="/payments" element={<Payments />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/users" element={<Users />} />
             </Route>
             
             {/* Catch-all route */}
