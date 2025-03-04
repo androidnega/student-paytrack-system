@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,7 +29,6 @@ import {
 import { mockStudents, mockCourses } from '@/data/mockData';
 import { generateTransactionCode, formatCurrency } from '@/lib/utils';
 
-// Define the form schema with validation
 const paymentFormSchema = z.object({
   studentId: z.string({
     required_error: "Student is required",
@@ -72,7 +70,6 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
   const [showCourseSelection, setShowCourseSelection] = useState(false);
   
-  // Initialize form with default values
   const form = useForm<PaymentFormValues>({
     resolver: zodResolver(paymentFormSchema),
     defaultValues: {
@@ -88,7 +85,6 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
     },
   });
 
-  // Watch for field changes
   const studentId = form.watch('studentId');
   const paymentPurpose = form.watch('paymentPurpose');
   const paymentMethod = form.watch('paymentMethod');
@@ -96,7 +92,6 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
   const thirdPartyType = form.watch('thirdPartyType');
   const itemId = form.watch('itemId');
   
-  // Effect for student selection
   useEffect(() => {
     if (studentId) {
       const student = mockStudents.find(s => s.id === studentId);
@@ -106,7 +101,6 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
     }
   }, [studentId]);
 
-  // Effect for course selection visibility
   useEffect(() => {
     setShowCourseSelection(
       paymentPurpose === PAYMENT_PURPOSES.BOOK || 
@@ -118,20 +112,16 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
     }
   }, [paymentPurpose, form]);
 
-  // Effect for selected item price
   useEffect(() => {
     if (itemId && (paymentPurpose === PAYMENT_PURPOSES.BOOK || paymentPurpose === PAYMENT_PURPOSES.HANDOUT)) {
       const course = mockCourses.find(c => c.id === itemId);
       if (course) {
-        // Here we would set a price based on the course/item
-        // For now, let's set a mock price
         const price = paymentPurpose === PAYMENT_PURPOSES.BOOK ? 50 : 20;
         form.setValue('amount', price);
       }
     }
   }, [itemId, paymentPurpose, form]);
 
-  // Reset related fields when payment method changes
   useEffect(() => {
     if (paymentMethod === PAYMENT_METHODS.MOMO) {
       form.setValue('payerType', null);
@@ -140,7 +130,6 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
     }
   }, [paymentMethod, form]);
 
-  // Reset third party fields when payer type changes
   useEffect(() => {
     if (payerType !== PAYER_TYPES.THIRD_PARTY) {
       form.setValue('thirdPartyType', null);
@@ -148,9 +137,7 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
     }
   }, [payerType, form]);
 
-  // Handle form submission
   const handleSubmit = (values: PaymentFormValues) => {
-    // Generate a transaction code for the payment
     const transactionCode = generateTransactionCode();
     onSubmit({
       ...values,
@@ -297,7 +284,6 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
           )}
         />
 
-        {/* Conditional fields for Cash payments */}
         {paymentMethod === PAYMENT_METHODS.CASH && (
           <FormField
             control={form.control}
@@ -325,7 +311,6 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
           />
         )}
 
-        {/* Additional fields for Third Party payments */}
         {paymentMethod === PAYMENT_METHODS.CASH && payerType === PAYER_TYPES.THIRD_PARTY && (
           <FormField
             control={form.control}
@@ -353,7 +338,6 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
           />
         )}
 
-        {/* Field for Third Party details */}
         {paymentMethod === PAYMENT_METHODS.CASH && 
          payerType === PAYER_TYPES.THIRD_PARTY && 
          thirdPartyType && (
