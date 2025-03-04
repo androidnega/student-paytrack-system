@@ -1,8 +1,7 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button"; // Added missing import
+import { Button } from "@/components/ui/button";
 import { GROUPS, PAYMENT_STATUS, SPECIALIZATIONS } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 import { mockDashboardStats, mockPayments, mockStudents } from "@/data/mockData";
@@ -58,7 +57,7 @@ export default function Dashboard() {
       value,
     }));
 
-  // Recent payments with student names
+  // Recent payments with student names and transaction codes
   const recentPaymentsWithNames = stats.recentPayments.map(payment => {
     const student = mockStudents.find(s => s.id === payment.studentId);
     return {
@@ -363,9 +362,12 @@ export default function Dashboard() {
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center">
+                        <div className="flex flex-col items-end">
                           <p className="text-sm font-medium">
                             {formatCurrency(payment.amount)}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Code: {payment.transactionCode ? payment.transactionCode.slice(0, 6) : 'N/A'}
                           </p>
                         </div>
                       </div>
