@@ -366,9 +366,11 @@ export default function Dashboard() {
                           <p className="text-sm font-medium">
                             {formatCurrency(payment.amount)}
                           </p>
-                          <p className="text-xs text-muted-foreground">
-                            Code: {payment.transactionCode ? payment.transactionCode.slice(0, 6) : 'N/A'}
-                          </p>
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs bg-secondary px-1.5 py-0.5 rounded font-mono">
+                              {payment.transactionCode}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     ))
