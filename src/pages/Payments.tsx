@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,13 +28,16 @@ import {
   Filter, 
   FileDown, 
   Plus, 
-  CalendarIcon 
+  CalendarIcon,
+  Info
 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
@@ -51,10 +53,9 @@ export default function Payments() {
   const [sortOrder, setSortOrder] = useState('newest');
   const [payments, setPayments] = useState<Payment[]>(mockPayments);
   const [isAddingPayment, setIsAddingPayment] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
 
-  // Filter payments based on search and filters
   const filteredPayments = payments.filter(payment => {
-    // Find student to get access to their name and index number
     const student = mockStudents.find(s => s.id === payment.studentId);
     if (!student) return false;
 
@@ -71,7 +72,6 @@ export default function Payments() {
     return matchesSearch && matchesPaymentMethod && matchesPaymentPurpose;
   });
 
-  // Sort payments
   const sortedPayments = [...filteredPayments].sort((a, b) => {
     if (sortOrder === 'newest') {
       return new Date(b.paymentDate).getTime() - new Date(a.paymentDate).getTime();
@@ -80,7 +80,6 @@ export default function Payments() {
     }
   });
 
-  // Function to get payment method badge color
   const getPaymentMethodColor = (method: string) => {
     switch(method) {
       case PAYMENT_METHODS.MOMO:
@@ -92,7 +91,6 @@ export default function Payments() {
     }
   };
 
-  // Function to get payment purpose badge color
   const getPaymentPurposeColor = (purpose: string) => {
     switch(purpose) {
       case PAYMENT_PURPOSES.BOOK:
@@ -108,7 +106,6 @@ export default function Payments() {
     }
   };
 
-  // Get payment purpose display name
   const getPaymentPurposeDisplay = (purpose: string) => {
     switch(purpose) {
       case PAYMENT_PURPOSES.BOOK:
@@ -124,9 +121,7 @@ export default function Payments() {
     }
   };
 
-  // Handle payment form submission
   const handleAddPayment = (formData: any) => {
-    // Create a new payment entry
     const newPayment: Payment = {
       id: `payment-${Date.now()}`,
       studentId: formData.studentId,
@@ -136,22 +131,21 @@ export default function Payments() {
       itemId: formData.itemId,
       transactionCode: formData.transactionCode,
       paymentDate: new Date(),
-      recordedBy: "current-user-id", // This would come from auth context in a real app
+      recordedBy: "current-user-id",
       notes: formData.notes,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
-    // Add new payment to the list
     setPayments([newPayment, ...payments]);
-    
-    // Close the dialog
     setIsAddingPayment(false);
-    
-    // Show success message
     toast.success(`Payment of ${formatCurrency(formData.amount)} recorded successfully`, {
       description: `Transaction code: ${formData.transactionCode}`,
     });
+  };
+
+  const openTransactionDetails = (payment: Payment) => {
+    setSelectedPayment(payment);
   };
 
   return (
@@ -273,7 +267,12 @@ export default function Payments() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button variant="ghost" size="sm">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => openTransactionDetails(payment)}
+                          >
+                            <Info className="h-4 w-4 mr-1" />
                             Details
                           </Button>
                         </TableCell>
@@ -293,7 +292,6 @@ export default function Payments() {
         </CardContent>
       </Card>
 
-      {/* Add Payment Dialog */}
       <Dialog open={isAddingPayment} onOpenChange={setIsAddingPayment}>
         <DialogContent className="sm:max-w-[550px]">
           <DialogHeader>
@@ -303,6 +301,99 @@ export default function Payments() {
             onSubmit={handleAddPayment}
             onCancel={() => setIsAddingPayment(false)} 
           />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!selectedPayment} onOpenChange={(open) => !open && setSelectedPayment(null)}>
+        <DialogContent className="sm:max-w-[550px]">
+          <DialogHeader>
+            <DialogTitle>Transaction Details</DialogTitle>
+            <DialogDescription>
+              Complete information about this payment transaction.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedPayment && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-1">Transaction Code</h4>
+                  <p className="text-lg font-mono bg-secondary inline-block px-2 py-1 rounded">
+                    {selectedPayment.transactionCode}
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-1">Date</h4>
+                  <p>{formatDate(new Date(selectedPayment.paymentDate))}</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-1">Amount</h4>
+                  <p className="text-lg font-semibold">{formatCurrency(selectedPayment.amount)}</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-1">Payment Method</h4>
+                  <Badge className={cn(getPaymentMethodColor(selectedPayment.paymentMethod), "text-xs font-normal")}>
+                    {selectedPayment.paymentMethod === PAYMENT_METHODS.MOMO ? "Mobile Money" : "Cash"}
+                  </Badge>
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground mb-1">Student Information</h4>
+                <div className="border rounded-md p-3 bg-muted/40">
+                  {(() => {
+                    const student = mockStudents.find(s => s.id === selectedPayment.studentId);
+                    return student ? (
+                      <>
+                        <p className="font-medium">{student.name}</p>
+                        <p className="text-sm text-muted-foreground">Index Number: {student.indexNumber}</p>
+                        <p className="text-sm text-muted-foreground">Specialization: {student.specialization}</p>
+                      </>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Student information not found</p>
+                    );
+                  })()}
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground mb-1">Payment Purpose</h4>
+                <div className="border rounded-md p-3 bg-muted/40">
+                  <Badge className={cn(getPaymentPurposeColor(selectedPayment.paymentPurpose), "mb-2")}>
+                    {getPaymentPurposeDisplay(selectedPayment.paymentPurpose)}
+                  </Badge>
+                  
+                  {selectedPayment.itemId && (
+                    <div className="mt-2">
+                      <p className="text-sm font-medium">Related Item</p>
+                      {(() => {
+                        const course = mockCourses.find(c => c.id === selectedPayment.itemId);
+                        return course ? (
+                          <p className="text-sm text-muted-foreground">{course.code} - {course.name}</p>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">No related item found</p>
+                        );
+                      })()}
+                    </div>
+                  )}
+                  
+                  {selectedPayment.notes && (
+                    <div className="mt-2">
+                      <p className="text-sm font-medium">Notes</p>
+                      <p className="text-sm text-muted-foreground">{selectedPayment.notes}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button onClick={() => setSelectedPayment(null)}>Close</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
