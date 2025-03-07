@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,11 +45,13 @@ import {
   Eye,
   EyeOff,
   RefreshCw,
-  AlertCircle
+  AlertCircle,
+  MessageSquare
 } from "lucide-react";
 import { CURRENT_ACADEMIC_YEAR } from "@/lib/constants";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { SystemSettings } from '@/types';
+import { SmsSettings } from '@/components/settings/SmsSettings';
 
 export default function Settings() {
   const { toast } = useToast();
@@ -75,6 +76,16 @@ export default function Settings() {
     contactEmail: "computerscience@ttu.edu.gh",
     contactPhone: "+233 302 123 4567",
     websiteUrl: "https://cs.ttu.edu.gh",
+    smsEnabled: false,
+    smsProvider: "mnotify",
+    smsApiKey: "",
+    smsApiUrl: "https://api.mnotify.com/api/sms/quick",
+    smsSenderName: "TTU-CS",
+    smsTemplates: {
+      fullPayment: "Dear {studentName}, your payment of {amount} has been received in full. Thank you for your payment. TTU Computer Science Dept.",
+      partialPayment: "Dear {studentName}, your partial payment of {amount} has been received. Outstanding balance: {remainingBalance}. TTU Computer Science Dept.",
+      paymentReminder: "Dear {studentName}, this is a reminder that you have an outstanding balance of {remainingBalance}. Please make payment before {paymentDeadline}. TTU Computer Science Dept."
+    }
   });
 
   const [notificationSettings, setNotificationSettings] = useState({
@@ -168,7 +179,11 @@ export default function Settings() {
     }, 1000);
   };
 
-  // Only super admins can access this page, redirect or show message otherwise
+  const handleSaveSmsSettings = (updatedSettings: SystemSettings) => {
+    console.log("Saving SMS settings:", updatedSettings);
+    setGeneralSettings(updatedSettings);
+  };
+
   if (user?.role !== "super_admin") {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-10rem)]">
@@ -209,7 +224,7 @@ export default function Settings() {
       </Alert>
 
       <Tabs defaultValue="general" className="space-y-4">
-        <TabsList className="grid grid-cols-4 w-full max-w-3xl">
+        <TabsList className="grid grid-cols-5 w-full max-w-4xl">
           <TabsTrigger value="general">
             <SettingsIcon className="h-4 w-4 mr-2" />
             General
@@ -217,6 +232,10 @@ export default function Settings() {
           <TabsTrigger value="notifications">
             <Bell className="h-4 w-4 mr-2" />
             Notifications
+          </TabsTrigger>
+          <TabsTrigger value="sms">
+            <MessageSquare className="h-4 w-4 mr-2" />
+            SMS
           </TabsTrigger>
           <TabsTrigger value="security">
             <Shield className="h-4 w-4 mr-2" />
@@ -645,6 +664,10 @@ export default function Settings() {
               </Button>
             </CardFooter>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="sms">
+          <SmsSettings settings={generalSettings} onSave={handleSaveSmsSettings} />
         </TabsContent>
 
         <TabsContent value="security">

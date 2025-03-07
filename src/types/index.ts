@@ -108,4 +108,22 @@ export interface SystemSettings {
   contactEmail: string;
   contactPhone: string;
   websiteUrl: string;
+  // SMS Integration Settings
+  smsEnabled: boolean;
+  smsProvider: string;
+  smsApiKey: string;
+  smsApiUrl: string;
+  smsSenderName: string;
+  smsTemplates: {
+    fullPayment: string;
+    partialPayment: string;
+    paymentReminder: string;
+  };
 }
+
+export interface SmsMessage {
+  to: string;
+  message: string;
+  sender?: string;
+}
+
