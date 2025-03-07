@@ -90,3 +90,22 @@ export interface DashboardStats {
     [key in Group]: number;
   };
 }
+
+export interface SystemSettings {
+  academicYear: string;
+  defaultPaymentAmount: string;
+  allowPartialPayments: boolean;
+  systemName: string;
+  smtpServer: string;
+  smtpPort: string;
+  emailSender: string;
+  department: string;
+  faculty: string;
+  institution: string;
+  currency: string;
+  paymentDeadline: string;
+  academicTerm: string;
+  contactEmail: string;
+  contactPhone: string;
+  websiteUrl: string;
+}
