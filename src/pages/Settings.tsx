@@ -16,15 +16,7 @@ import {
   TabsList, 
   TabsTrigger 
 } from "@/components/ui/tabs";
-import { 
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -252,7 +244,7 @@ export default function Settings() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <FormLabel htmlFor="institution">Institution Name</FormLabel>
+                    <Label htmlFor="institution">Institution Name</Label>
                     <Input 
                       id="institution" 
                       value={generalSettings.institution}
@@ -260,7 +252,7 @@ export default function Settings() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <FormLabel htmlFor="faculty">Faculty</FormLabel>
+                    <Label htmlFor="faculty">Faculty</Label>
                     <Input 
                       id="faculty" 
                       value={generalSettings.faculty}
@@ -268,7 +260,7 @@ export default function Settings() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <FormLabel htmlFor="department">Department</FormLabel>
+                    <Label htmlFor="department">Department</Label>
                     <Input 
                       id="department" 
                       value={generalSettings.department}
@@ -276,7 +268,7 @@ export default function Settings() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <FormLabel htmlFor="systemName">System Name</FormLabel>
+                    <Label htmlFor="systemName">System Name</Label>
                     <Input 
                       id="systemName" 
                       value={generalSettings.systemName}
@@ -293,19 +285,19 @@ export default function Settings() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <FormLabel htmlFor="academicYear">Current Academic Year</FormLabel>
+                    <Label htmlFor="academicYear">Current Academic Year</Label>
                     <Input 
                       id="academicYear" 
                       placeholder="Academic Year" 
                       value={generalSettings.academicYear}
                       onChange={(e) => handleGeneralSettingChange('academicYear', e.target.value)}
                     />
-                    <FormDescription>
+                    <p className="text-sm text-muted-foreground">
                       Format: YY (e.g., "24" for 2024)
-                    </FormDescription>
+                    </p>
                   </div>
                   <div className="space-y-2">
-                    <FormLabel htmlFor="academicTerm">Current Term</FormLabel>
+                    <Label htmlFor="academicTerm">Current Term</Label>
                     <Select 
                       value={generalSettings.academicTerm}
                       onValueChange={(value) => handleGeneralSettingChange('academicTerm', value)}
@@ -321,7 +313,7 @@ export default function Settings() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <FormLabel htmlFor="paymentDeadline">Payment Deadline</FormLabel>
+                    <Label htmlFor="paymentDeadline">Payment Deadline</Label>
                     <Input 
                       id="paymentDeadline" 
                       type="date" 
@@ -339,7 +331,7 @@ export default function Settings() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <FormLabel htmlFor="defaultPaymentAmount">Default Payment Amount</FormLabel>
+                    <Label htmlFor="defaultPaymentAmount">Default Payment Amount</Label>
                     <div className="flex">
                       <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm">
                         {generalSettings.currency}
@@ -352,12 +344,12 @@ export default function Settings() {
                         onChange={(e) => handleGeneralSettingChange('defaultPaymentAmount', e.target.value)}
                       />
                     </div>
-                    <FormDescription>
+                    <p className="text-sm text-muted-foreground">
                       Default amount for new students
-                    </FormDescription>
+                    </p>
                   </div>
                   <div className="space-y-2">
-                    <FormLabel htmlFor="currency">Currency</FormLabel>
+                    <Label htmlFor="currency">Currency</Label>
                     <Select 
                       value={generalSettings.currency}
                       onValueChange={(value) => handleGeneralSettingChange('currency', value)}
@@ -381,7 +373,7 @@ export default function Settings() {
                     checked={generalSettings.allowPartialPayments}
                     onCheckedChange={(checked) => handleGeneralSettingChange('allowPartialPayments', checked)}
                   />
-                  <FormLabel htmlFor="allowPartialPayments">Allow Partial Payments</FormLabel>
+                  <Label htmlFor="allowPartialPayments">Allow Partial Payments</Label>
                 </div>
               </div>
 
@@ -392,7 +384,7 @@ export default function Settings() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <FormLabel htmlFor="contactEmail">Contact Email</FormLabel>
+                    <Label htmlFor="contactEmail">Contact Email</Label>
                     <Input 
                       id="contactEmail" 
                       type="email"
@@ -401,7 +393,7 @@ export default function Settings() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <FormLabel htmlFor="contactPhone">Contact Phone</FormLabel>
+                    <Label htmlFor="contactPhone">Contact Phone</Label>
                     <Input 
                       id="contactPhone" 
                       value={generalSettings.contactPhone}
@@ -409,7 +401,7 @@ export default function Settings() {
                     />
                   </div>
                   <div className="space-y-2 md:col-span-2">
-                    <FormLabel htmlFor="websiteUrl">Website URL</FormLabel>
+                    <Label htmlFor="websiteUrl">Website URL</Label>
                     <Input 
                       id="websiteUrl" 
                       type="url"
@@ -427,7 +419,7 @@ export default function Settings() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <FormLabel htmlFor="smtpServer">SMTP Server</FormLabel>
+                    <Label htmlFor="smtpServer">SMTP Server</Label>
                     <Input 
                       id="smtpServer" 
                       placeholder="SMTP Server" 
@@ -436,7 +428,7 @@ export default function Settings() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <FormLabel htmlFor="smtpPort">SMTP Port</FormLabel>
+                    <Label htmlFor="smtpPort">SMTP Port</Label>
                     <Input 
                       id="smtpPort" 
                       placeholder="SMTP Port" 
@@ -445,7 +437,7 @@ export default function Settings() {
                     />
                   </div>
                   <div className="space-y-2 md:col-span-2">
-                    <FormLabel htmlFor="emailSender">Sender Email</FormLabel>
+                    <Label htmlFor="emailSender">Sender Email</Label>
                     <Input 
                       id="emailSender" 
                       placeholder="Sender Email" 
@@ -496,7 +488,7 @@ export default function Settings() {
                         checked={notificationSettings.enableEmailNotifications}
                         onCheckedChange={(checked) => handleNotificationSettingChange('enableEmailNotifications', checked)}
                       />
-                      <FormLabel htmlFor="enableEmailNotifications">Enable Email Notifications</FormLabel>
+                      <Label htmlFor="enableEmailNotifications">Enable Email Notifications</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Switch 
@@ -504,7 +496,7 @@ export default function Settings() {
                         checked={notificationSettings.notifyOnPayment}
                         onCheckedChange={(checked) => handleNotificationSettingChange('notifyOnPayment', checked)}
                       />
-                      <FormLabel htmlFor="notifyOnPayment">Notify Students on Payment</FormLabel>
+                      <Label htmlFor="notifyOnPayment">Notify Students on Payment</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Switch 
@@ -512,7 +504,7 @@ export default function Settings() {
                         checked={notificationSettings.notifyOnDeadline}
                         onCheckedChange={(checked) => handleNotificationSettingChange('notifyOnDeadline', checked)}
                       />
-                      <FormLabel htmlFor="notifyOnDeadline">Send Payment Deadline Reminders</FormLabel>
+                      <Label htmlFor="notifyOnDeadline">Send Payment Deadline Reminders</Label>
                     </div>
                   </div>
                   <div className="flex flex-col gap-4">
@@ -522,7 +514,7 @@ export default function Settings() {
                         checked={notificationSettings.enableSmsNotifications}
                         onCheckedChange={(checked) => handleNotificationSettingChange('enableSmsNotifications', checked)}
                       />
-                      <FormLabel htmlFor="enableSmsNotifications">Enable SMS Notifications</FormLabel>
+                      <Label htmlFor="enableSmsNotifications">Enable SMS Notifications</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Switch 
@@ -530,7 +522,7 @@ export default function Settings() {
                         checked={notificationSettings.notifyOnRegistration}
                         onCheckedChange={(checked) => handleNotificationSettingChange('notifyOnRegistration', checked)}
                       />
-                      <FormLabel htmlFor="notifyOnRegistration">Notify Students on Registration</FormLabel>
+                      <Label htmlFor="notifyOnRegistration">Notify Students on Registration</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Switch 
@@ -538,7 +530,7 @@ export default function Settings() {
                         checked={notificationSettings.notifyAdminOnNewPayment}
                         onCheckedChange={(checked) => handleNotificationSettingChange('notifyAdminOnNewPayment', checked)}
                       />
-                      <FormLabel htmlFor="notifyAdminOnNewPayment">Notify Admins on New Payments</FormLabel>
+                      <Label htmlFor="notifyAdminOnNewPayment">Notify Admins on New Payments</Label>
                     </div>
                   </div>
                 </div>
@@ -551,7 +543,7 @@ export default function Settings() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <FormLabel htmlFor="smsProvider">SMS Provider</FormLabel>
+                    <Label htmlFor="smsProvider">SMS Provider</Label>
                     <Select 
                       value={notificationSettings.smsProvider}
                       onValueChange={(value) => handleNotificationSettingChange('smsProvider', value)}
@@ -567,7 +559,7 @@ export default function Settings() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <FormLabel htmlFor="smsApiKey">API Key</FormLabel>
+                    <Label htmlFor="smsApiKey">API Key</Label>
                     <Input 
                       id="smsApiKey" 
                       type="password" 
@@ -584,7 +576,7 @@ export default function Settings() {
                   Email Frequency
                 </h3>
                 <div className="space-y-2">
-                  <FormLabel htmlFor="emailFrequency">Email Delivery Frequency</FormLabel>
+                  <Label htmlFor="emailFrequency">Email Delivery Frequency</Label>
                   <Select 
                     value={notificationSettings.emailFrequency}
                     onValueChange={(value) => handleNotificationSettingChange('emailFrequency', value)}
@@ -608,7 +600,7 @@ export default function Settings() {
                 </h3>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <FormLabel htmlFor="paymentReceiptTemplate">Payment Receipt Template</FormLabel>
+                    <Label htmlFor="paymentReceiptTemplate">Payment Receipt Template</Label>
                     <Textarea 
                       id="paymentReceiptTemplate" 
                       placeholder="Payment Receipt Template" 
@@ -616,13 +608,13 @@ export default function Settings() {
                       onChange={(e) => handleNotificationSettingChange('paymentReceiptTemplate', e.target.value)}
                       className="min-h-[150px]"
                     />
-                    <FormDescription>
+                    <p className="text-sm text-muted-foreground">
                       Use placeholders like {"{studentName}"}, {"{amount}"}, {"{transactionCode}"}, {"{remainingBalance}"}
-                    </FormDescription>
+                    </p>
                   </div>
 
                   <div className="space-y-2">
-                    <FormLabel htmlFor="paymentReminderTemplate">Payment Reminder Template</FormLabel>
+                    <Label htmlFor="paymentReminderTemplate">Payment Reminder Template</Label>
                     <Textarea 
                       id="paymentReminderTemplate" 
                       placeholder="Payment Reminder Template" 
@@ -630,9 +622,9 @@ export default function Settings() {
                       onChange={(e) => handleNotificationSettingChange('paymentReminderTemplate', e.target.value)}
                       className="min-h-[150px]"
                     />
-                    <FormDescription>
+                    <p className="text-sm text-muted-foreground">
                       Use placeholders like {"{studentName}"}, {"{remainingBalance}"}
-                    </FormDescription>
+                    </p>
                   </div>
                 </div>
               </div>
@@ -676,7 +668,7 @@ export default function Settings() {
                       checked={securitySettings.twoFactorAuth}
                       onCheckedChange={(checked) => handleSecuritySettingChange('twoFactorAuth', checked)}
                     />
-                    <FormLabel htmlFor="twoFactorAuth">Enable Two-Factor Authentication</FormLabel>
+                    <Label htmlFor="twoFactorAuth">Enable Two-Factor Authentication</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Switch 
@@ -684,11 +676,11 @@ export default function Settings() {
                       checked={securitySettings.sessionTimeout}
                       onCheckedChange={(checked) => handleSecuritySettingChange('sessionTimeout', checked)}
                     />
-                    <FormLabel htmlFor="sessionTimeout">Enable Session Timeout</FormLabel>
+                    <Label htmlFor="sessionTimeout">Enable Session Timeout</Label>
                   </div>
                 </div>
                 <div className="mt-4 space-y-2">
-                  <FormLabel htmlFor="sessionTimeoutMinutes">Session Timeout (minutes)</FormLabel>
+                  <Label htmlFor="sessionTimeoutMinutes">Session Timeout (minutes)</Label>
                   <Input 
                     id="sessionTimeoutMinutes" 
                     placeholder="30" 
@@ -706,7 +698,7 @@ export default function Settings() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <FormLabel htmlFor="passwordPolicy">Password Requirements</FormLabel>
+                    <Label htmlFor="passwordPolicy">Password Requirements</Label>
                     <Select 
                       value={securitySettings.passwordPolicy}
                       onValueChange={(value) => handleSecuritySettingChange('passwordPolicy', value)}
@@ -722,7 +714,7 @@ export default function Settings() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <FormLabel htmlFor="passwordExpiryDays">Password Expiry (days)</FormLabel>
+                    <Label htmlFor="passwordExpiryDays">Password Expiry (days)</Label>
                     <Input 
                       id="passwordExpiryDays" 
                       value={securitySettings.passwordExpiryDays}
@@ -730,16 +722,16 @@ export default function Settings() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <FormLabel htmlFor="enforcePasswordHistory">Password History</FormLabel>
+                    <Label htmlFor="enforcePasswordHistory">Password History</Label>
                     <Input 
                       id="enforcePasswordHistory" 
                       placeholder="Last 3 passwords" 
                       value={securitySettings.enforcePasswordHistory}
                       onChange={(e) => handleSecuritySettingChange('enforcePasswordHistory', e.target.value)}
                     />
-                    <FormDescription>
+                    <p className="text-sm text-muted-foreground">
                       Number of previous passwords that cannot be reused
-                    </FormDescription>
+                    </p>
                   </div>
                 </div>
               </div>
@@ -751,18 +743,18 @@ export default function Settings() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <FormLabel htmlFor="maxLoginAttempts">Max Login Attempts</FormLabel>
+                    <Label htmlFor="maxLoginAttempts">Max Login Attempts</Label>
                     <Input 
                       id="maxLoginAttempts" 
                       value={securitySettings.maxLoginAttempts}
                       onChange={(e) => handleSecuritySettingChange('maxLoginAttempts', e.target.value)}
                     />
-                    <FormDescription>
+                    <p className="text-sm text-muted-foreground">
                       Number of failed attempts before account lockout
-                    </FormDescription>
+                    </p>
                   </div>
                   <div className="space-y-2">
-                    <FormLabel htmlFor="lockoutDuration">Lockout Duration (minutes)</FormLabel>
+                    <Label htmlFor="lockoutDuration">Lockout Duration (minutes)</Label>
                     <Input 
                       id="lockoutDuration" 
                       value={securitySettings.lockoutDuration}
@@ -784,7 +776,7 @@ export default function Settings() {
                       checked={securitySettings.auditLogging}
                       onCheckedChange={(checked) => handleSecuritySettingChange('auditLogging', checked)}
                     />
-                    <FormLabel htmlFor="auditLogging">Enable Audit Logging</FormLabel>
+                    <Label htmlFor="auditLogging">Enable Audit Logging</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Switch 
@@ -792,11 +784,11 @@ export default function Settings() {
                       checked={securitySettings.ipRestriction}
                       onCheckedChange={(checked) => handleSecuritySettingChange('ipRestriction', checked)}
                     />
-                    <FormLabel htmlFor="ipRestriction">Enable IP Restriction</FormLabel>
+                    <Label htmlFor="ipRestriction">Enable IP Restriction</Label>
                   </div>
                 </div>
                 <div className="mt-4 space-y-2">
-                  <FormLabel htmlFor="allowedIPs">Allowed IP Addresses</FormLabel>
+                  <Label htmlFor="allowedIPs">Allowed IP Addresses</Label>
                   <Textarea 
                     id="allowedIPs" 
                     placeholder="Enter comma-separated IP addresses or ranges" 
@@ -804,9 +796,9 @@ export default function Settings() {
                     onChange={(e) => handleSecuritySettingChange('allowedIPs', e.target.value)}
                     disabled={!securitySettings.ipRestriction}
                   />
-                  <FormDescription>
+                  <p className="text-sm text-muted-foreground">
                     Format: 192.168.1.1, 10.0.0.0/24
-                  </FormDescription>
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -844,23 +836,23 @@ export default function Settings() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <FormLabel htmlFor="name">Full Name</FormLabel>
+                    <Label htmlFor="name">Full Name</Label>
                     <Input id="name" placeholder="Full Name" defaultValue={user?.name} />
                   </div>
                   <div className="space-y-2">
-                    <FormLabel htmlFor="email">Email</FormLabel>
+                    <Label htmlFor="email">Email</Label>
                     <Input id="email" placeholder="Email" defaultValue={user?.email} />
                   </div>
                   <div className="space-y-2">
-                    <FormLabel htmlFor="phone">Phone Number</FormLabel>
+                    <Label htmlFor="phone">Phone Number</Label>
                     <Input id="phone" placeholder="Phone Number" defaultValue={user?.phone || ''} />
                   </div>
                   <div className="space-y-2">
-                    <FormLabel htmlFor="role">Role</FormLabel>
+                    <Label htmlFor="role">Role</Label>
                     <Input id="role" placeholder="Role" defaultValue={user?.role} disabled />
-                    <FormDescription>
+                    <p className="text-sm text-muted-foreground">
                       Role changes must be made by another super admin
-                    </FormDescription>
+                    </p>
                   </div>
                 </div>
               </div>
@@ -872,7 +864,7 @@ export default function Settings() {
                 </h3>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <FormLabel htmlFor="currentPassword">Current Password</FormLabel>
+                    <Label htmlFor="currentPassword">Current Password</Label>
                     <div className="relative">
                       <Input 
                         id="currentPassword" 
@@ -897,11 +889,11 @@ export default function Settings() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <FormLabel htmlFor="newPassword">New Password</FormLabel>
+                      <Label htmlFor="newPassword">New Password</Label>
                       <Input id="newPassword" type="password" placeholder="New Password" />
                     </div>
                     <div className="space-y-2">
-                      <FormLabel htmlFor="confirmPassword">Confirm New Password</FormLabel>
+                      <Label htmlFor="confirmPassword">Confirm New Password</Label>
                       <Input id="confirmPassword" type="password" placeholder="Confirm New Password" />
                     </div>
                   </div>
