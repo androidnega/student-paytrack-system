@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -28,6 +29,7 @@ import {
 } from '@/lib/constants';
 import { mockStudents, mockCourses } from '@/data/mockData';
 import { generateTransactionCode, formatCurrency } from '@/lib/utils';
+import { Item } from '@/types';
 
 const paymentFormSchema = z.object({
   studentId: z.string({
@@ -66,9 +68,34 @@ interface PaymentFormProps {
   onCancel: () => void;
 }
 
+// Sample items - in a real app this would come from your API or context
+const sampleItems: Item[] = [
+  {
+    id: "item-1",
+    name: "Introduction to Programming Textbook",
+    type: PAYMENT_PURPOSES.BOOK,
+    price: 50,
+    courseId: "course-1"
+  },
+  {
+    id: "item-2",
+    name: "Software Engineering Notes",
+    type: PAYMENT_PURPOSES.HANDOUT,
+    price: 20,
+    courseId: "course-2"
+  },
+  {
+    id: "item-3",
+    name: "Industry Tour",
+    type: PAYMENT_PURPOSES.TRIP,
+    price: 100
+  }
+];
+
 export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
-  const [showCourseSelection, setShowCourseSelection] = useState(false);
+  const [items, setItems] = useState<Item[]>(sampleItems);
+  const [filteredItems, setFilteredItems] = useState<Item[]>([]);
   
   const form = useForm<PaymentFormValues>({
     resolver: zodResolver(paymentFormSchema),
@@ -101,26 +128,26 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
     }
   }, [studentId]);
 
+  // Filter items based on payment purpose
   useEffect(() => {
-    setShowCourseSelection(
-      paymentPurpose === PAYMENT_PURPOSES.BOOK || 
-      paymentPurpose === PAYMENT_PURPOSES.HANDOUT
-    );
+    const filtered = items.filter(item => item.type === paymentPurpose);
+    setFilteredItems(filtered);
     
-    if (!(paymentPurpose === PAYMENT_PURPOSES.BOOK || paymentPurpose === PAYMENT_PURPOSES.HANDOUT)) {
+    // Clear itemId if there are no items for this purpose
+    if (filtered.length === 0) {
       form.setValue('itemId', undefined);
     }
-  }, [paymentPurpose, form]);
+  }, [paymentPurpose, form, items]);
 
+  // Set amount based on selected item
   useEffect(() => {
-    if (itemId && (paymentPurpose === PAYMENT_PURPOSES.BOOK || paymentPurpose === PAYMENT_PURPOSES.HANDOUT)) {
-      const course = mockCourses.find(c => c.id === itemId);
-      if (course) {
-        const price = paymentPurpose === PAYMENT_PURPOSES.BOOK ? 50 : 20;
-        form.setValue('amount', price);
+    if (itemId) {
+      const selectedItem = items.find(item => item.id === itemId);
+      if (selectedItem) {
+        form.setValue('amount', selectedItem.price);
       }
     }
-  }, [itemId, paymentPurpose, form]);
+  }, [itemId, form, items]);
 
   useEffect(() => {
     if (paymentMethod === PAYMENT_METHODS.MOMO) {
@@ -229,26 +256,26 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
           )}
         />
 
-        {showCourseSelection && (
+        {filteredItems.length > 0 && (
           <FormField
             control={form.control}
             name="itemId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Select Course</FormLabel>
+                <FormLabel>Select Item</FormLabel>
                 <Select 
                   onValueChange={field.onChange} 
                   defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a course" />
+                      <SelectValue placeholder={`Select a ${paymentPurpose}`} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {mockCourses.map((course) => (
-                      <SelectItem key={course.id} value={course.id}>
-                        {course.code} - {course.name}
+                    {filteredItems.map((item) => (
+                      <SelectItem key={item.id} value={item.id}>
+                        {item.name} - GHS {item.price.toFixed(2)}
                       </SelectItem>
                     ))}
                   </SelectContent>

@@ -43,6 +43,14 @@ export interface Lecturer {
   phone?: string;
 }
 
+export interface Item {
+  id: string;
+  name: string;
+  type: string;
+  price: number;
+  courseId?: string;
+}
+
 export interface Payment {
   id: string;
   studentId: string;
