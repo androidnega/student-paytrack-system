@@ -69,27 +69,47 @@ interface PaymentFormProps {
   onCancel: () => void;
 }
 
-// Sample items - in a real app this would come from your API or context
+// Enhanced sample items with course information - in a real app this would come from your API or context
 const sampleItems: Item[] = [
   {
     id: "item-1",
-    name: "Introduction to Programming Textbook",
+    name: "Introduction to Programming Textbook - CSC101",
     type: PAYMENT_PURPOSES.BOOK,
     price: 50,
     courseId: "course-1"
   },
   {
     id: "item-2",
-    name: "Software Engineering Notes",
-    type: PAYMENT_PURPOSES.HANDOUT,
-    price: 20,
+    name: "Database Management Systems Textbook - CSC201",
+    type: PAYMENT_PURPOSES.BOOK,
+    price: 65,
     courseId: "course-2"
   },
   {
     id: "item-3",
-    name: "Industry Tour",
+    name: "Software Engineering Notes - CSC301",
+    type: PAYMENT_PURPOSES.HANDOUT,
+    price: 20,
+    courseId: "course-3"
+  },
+  {
+    id: "item-4",
+    name: "Computer Networks Notes - CSC302",
+    type: PAYMENT_PURPOSES.HANDOUT,
+    price: 25,
+    courseId: "course-4"
+  },
+  {
+    id: "item-5",
+    name: "Industry Tour - Tech Companies",
     type: PAYMENT_PURPOSES.TRIP,
     price: 100
+  },
+  {
+    id: "item-6",
+    name: "Educational Visit - Microsoft Ghana",
+    type: PAYMENT_PURPOSES.TRIP,
+    price: 120
   }
 ];
 
@@ -118,6 +138,7 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
   const paymentMethod = form.watch('paymentMethod');
   const payerType = form.watch('payerType');
   const thirdPartyType = form.watch('thirdPartyType');
+  const selectedCourseId = form.watch('courseId');
   
   // Filter items based on payment purpose
   useEffect(() => {
@@ -127,8 +148,19 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
     // Clear courseId if there are no items for this purpose
     if (filtered.length === 0) {
       form.setValue('courseId', undefined);
+      form.setValue('amount', undefined);
     }
   }, [paymentPurpose, form, items]);
+
+  // Update amount when a course/item is selected
+  useEffect(() => {
+    if (selectedCourseId) {
+      const selectedItem = items.find(item => item.id === selectedCourseId);
+      if (selectedItem) {
+        form.setValue('amount', selectedItem.price);
+      }
+    }
+  }, [selectedCourseId, items, form]);
 
   // Reset fields when payment method changes
   useEffect(() => {
@@ -202,7 +234,12 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
             <FormItem>
               <FormLabel>What are you paying for?</FormLabel>
               <Select 
-                onValueChange={field.onChange} 
+                onValueChange={(value) => {
+                  field.onChange(value);
+                  // Reset course selection when purpose changes
+                  form.setValue('courseId', undefined);
+                  form.setValue('amount', undefined);
+                }} 
                 defaultValue={field.value}
               >
                 <FormControl>
@@ -222,17 +259,19 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
           )}
         />
 
-        {/* Course selection (for applicable payment purposes) */}
+        {/* Course/Item selection */}
         {filteredItems.length > 0 && (
           <FormField
             control={form.control}
             name="courseId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Select Item</FormLabel>
+                <FormLabel>Select {paymentPurpose === PAYMENT_PURPOSES.BOOK ? 'Textbook' : 
+                               paymentPurpose === PAYMENT_PURPOSES.HANDOUT ? 'Handout' : 
+                               paymentPurpose === PAYMENT_PURPOSES.TRIP ? 'Trip' : 'Item'}</FormLabel>
                 <Select 
                   onValueChange={field.onChange} 
-                  defaultValue={field.value}
+                  value={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -242,7 +281,7 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
                   <SelectContent>
                     {filteredItems.map((item) => (
                       <SelectItem key={item.id} value={item.id}>
-                        {item.name} - GHS {item.price.toFixed(2)}
+                        {item.name} - {formatCurrency(item.price)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -253,7 +292,7 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
           />
         )}
 
-        {/* Amount */}
+        {/* Amount - will be prefilled when item is selected, but can still be modified */}
         <FormField
           control={form.control}
           name="amount"
