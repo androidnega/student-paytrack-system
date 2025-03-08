@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { 
-  ExclamationTriangleIcon, 
+  AlertTriangle, 
   MessageSquare, 
   Settings, 
   Clock, 
@@ -76,7 +76,7 @@ export default function SmsMessages() {
 
       {!settings.smsEnabled && (
         <Alert variant="destructive">
-          <ExclamationTriangleIcon className="h-4 w-4" />
+          <AlertTriangle className="h-4 w-4" />
           <AlertTitle>SMS is disabled</AlertTitle>
           <AlertDescription>
             SMS functionality is currently disabled. Please enable it in the SMS settings page.

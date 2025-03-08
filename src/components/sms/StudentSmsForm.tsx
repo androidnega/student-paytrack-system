@@ -23,7 +23,7 @@ import { CheckCircle, Send, AlertCircle, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { Student, SystemSettings } from "@/types";
 import { sendBulkSms, sendPaymentReminders, prepareSmsTemplate } from "@/lib/smsUtils";
-import { Group, Specialization } from "@/lib/constants";
+import { GROUPS, SPECIALIZATIONS } from "@/lib/constants";
 
 interface StudentSmsFormProps {
   students: Student[];
@@ -164,8 +164,10 @@ export function StudentSmsForm({ students, settings }: StudentSmsFormProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Groups</SelectItem>
-                {Object.values(Group).map((group) => (
-                  <SelectItem key={group} value={group}>{group}</SelectItem>
+                {Object.keys(GROUPS).map((groupKey) => (
+                  <SelectItem key={groupKey} value={GROUPS[groupKey as keyof typeof GROUPS]}>
+                    {GROUPS[groupKey as keyof typeof GROUPS]}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -182,8 +184,10 @@ export function StudentSmsForm({ students, settings }: StudentSmsFormProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Specializations</SelectItem>
-                {Object.values(Specialization).map((spec) => (
-                  <SelectItem key={spec} value={spec}>{spec}</SelectItem>
+                {Object.keys(SPECIALIZATIONS).map((specKey) => (
+                  <SelectItem key={specKey} value={SPECIALIZATIONS[specKey as keyof typeof SPECIALIZATIONS]}>
+                    {SPECIALIZATIONS[specKey as keyof typeof SPECIALIZATIONS]}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
