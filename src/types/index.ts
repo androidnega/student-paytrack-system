@@ -27,6 +27,17 @@ export interface Student {
   updatedAt: Date;
 }
 
+export interface NewStudent {
+  name: string;
+  indexNumber: string;
+  email: string;
+  phone: string;
+  specialization: Specialization;
+  group: Group;
+  academicYear: string;
+  totalAmountDue: number;
+}
+
 export interface Course {
   id: string;
   code: string;
@@ -126,4 +137,3 @@ export interface SmsMessage {
   message: string;
   sender?: string;
 }
-
