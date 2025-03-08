@@ -27,28 +27,16 @@ import {
   PAYER_TYPES, 
   THIRD_PARTY_TYPES 
 } from '@/lib/constants';
-import { mockStudents, mockCourses } from '@/data/mockData';
+import { mockStudents } from '@/data/mockData';
 import { generateTransactionCode, formatCurrency } from '@/lib/utils';
 import { Item } from '@/types';
 
+// Validation schema with index number format check
 const paymentFormSchema = z.object({
-  studentId: z.string({
-    required_error: "Student is required",
-  }),
-  amount: z.coerce.number({
-    required_error: "Amount is required",
-    invalid_type_error: "Amount must be a number",
-  }).positive("Amount must be positive"),
-  paymentMethod: z.enum([PAYMENT_METHODS.MOMO, PAYMENT_METHODS.CASH], {
-    required_error: "Payment method is required",
-  }),
-  payerType: z.enum([PAYER_TYPES.SELF, PAYER_TYPES.THIRD_PARTY])
-    .optional()
-    .nullable(),
-  thirdPartyType: z.enum([THIRD_PARTY_TYPES.STUDENT, THIRD_PARTY_TYPES.RELATIVE])
-    .optional()
-    .nullable(),
-  thirdPartyDetails: z.string().optional(),
+  studentName: z.string().min(2, "Student name is required"),
+  indexNumber: z.string()
+    .min(3, "Index number is required")
+    .regex(/^[A-Z]{2}\/[A-Z]{3}\/\d{2}\/\d{3}$/, "Index number must be in the format BC/ITS/24/001"),
   paymentPurpose: z.enum([
     PAYMENT_PURPOSES.BOOK, 
     PAYMENT_PURPOSES.HANDOUT, 
@@ -57,7 +45,20 @@ const paymentFormSchema = z.object({
   ], {
     required_error: "Payment purpose is required",
   }),
-  itemId: z.string().optional(),
+  amount: z.coerce.number({
+    required_error: "Amount is required",
+    invalid_type_error: "Amount must be a number",
+  }).positive("Amount must be positive"),
+  courseId: z.string().optional(),
+  paymentMethod: z.enum([PAYMENT_METHODS.MOMO, PAYMENT_METHODS.CASH], {
+    required_error: "Payment method is required",
+  }),
+  transactionReference: z.string().optional(),
+  payerType: z.enum([PAYER_TYPES.SELF, PAYER_TYPES.THIRD_PARTY])
+    .optional(),
+  thirdPartyType: z.enum([THIRD_PARTY_TYPES.STUDENT, THIRD_PARTY_TYPES.RELATIVE])
+    .optional(),
+  thirdPartyDetails: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -93,73 +94,57 @@ const sampleItems: Item[] = [
 ];
 
 export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
-  const [selectedStudent, setSelectedStudent] = useState<any>(null);
   const [items, setItems] = useState<Item[]>(sampleItems);
   const [filteredItems, setFilteredItems] = useState<Item[]>([]);
   
   const form = useForm<PaymentFormValues>({
     resolver: zodResolver(paymentFormSchema),
     defaultValues: {
-      studentId: "",
-      amount: undefined,
-      paymentMethod: PAYMENT_METHODS.MOMO,
-      payerType: null,
-      thirdPartyType: null,
-      thirdPartyDetails: "",
+      studentName: "",
+      indexNumber: "",
       paymentPurpose: PAYMENT_PURPOSES.BOOK,
-      itemId: undefined,
+      amount: undefined,
+      courseId: undefined,
+      paymentMethod: PAYMENT_METHODS.MOMO,
+      transactionReference: "",
+      payerType: undefined,
+      thirdPartyType: undefined,
+      thirdPartyDetails: "",
       notes: "",
     },
   });
 
-  const studentId = form.watch('studentId');
   const paymentPurpose = form.watch('paymentPurpose');
   const paymentMethod = form.watch('paymentMethod');
   const payerType = form.watch('payerType');
   const thirdPartyType = form.watch('thirdPartyType');
-  const itemId = form.watch('itemId');
   
-  useEffect(() => {
-    if (studentId) {
-      const student = mockStudents.find(s => s.id === studentId);
-      setSelectedStudent(student);
-    } else {
-      setSelectedStudent(null);
-    }
-  }, [studentId]);
-
   // Filter items based on payment purpose
   useEffect(() => {
     const filtered = items.filter(item => item.type === paymentPurpose);
     setFilteredItems(filtered);
     
-    // Clear itemId if there are no items for this purpose
+    // Clear courseId if there are no items for this purpose
     if (filtered.length === 0) {
-      form.setValue('itemId', undefined);
+      form.setValue('courseId', undefined);
     }
   }, [paymentPurpose, form, items]);
 
-  // Set amount based on selected item
-  useEffect(() => {
-    if (itemId) {
-      const selectedItem = items.find(item => item.id === itemId);
-      if (selectedItem) {
-        form.setValue('amount', selectedItem.price);
-      }
-    }
-  }, [itemId, form, items]);
-
+  // Reset fields when payment method changes
   useEffect(() => {
     if (paymentMethod === PAYMENT_METHODS.MOMO) {
-      form.setValue('payerType', null);
-      form.setValue('thirdPartyType', null);
+      form.setValue('payerType', undefined);
+      form.setValue('thirdPartyType', undefined);
       form.setValue('thirdPartyDetails', '');
+    } else {
+      form.setValue('transactionReference', '');
     }
   }, [paymentMethod, form]);
 
+  // Reset third party fields when payerType changes
   useEffect(() => {
     if (payerType !== PAYER_TYPES.THIRD_PARTY) {
-      form.setValue('thirdPartyType', null);
+      form.setValue('thirdPartyType', undefined);
       form.setValue('thirdPartyDetails', '');
     }
   }, [payerType, form]);
@@ -175,66 +160,47 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="studentId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Student</FormLabel>
-              <Select 
-                onValueChange={field.onChange} 
-                defaultValue={field.value}
-              >
+        {/* Student Information */}
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="studentName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Student Name</FormLabel>
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a student" />
-                  </SelectTrigger>
+                  <Input placeholder="Enter student name" {...field} />
                 </FormControl>
-                <SelectContent>
-                  {mockStudents.map((student) => (
-                    <SelectItem key={student.id} value={student.id}>
-                      {student.name} - {student.indexNumber}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        {selectedStudent && (
-          <div className="rounded-md bg-muted p-4 text-sm">
-            <div className="font-medium mb-1">Student Information</div>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <span className="text-muted-foreground">Index Number:</span> {selectedStudent.indexNumber}
-              </div>
-              <div>
-                <span className="text-muted-foreground">Program:</span> {selectedStudent.specialization}
-              </div>
-              <div>
-                <span className="text-muted-foreground">Academic Year:</span> {selectedStudent.academicYear}
-              </div>
-              <div>
-                <span className="text-muted-foreground">Group:</span> {selectedStudent.group}
-              </div>
-              <div className="col-span-2">
-                <span className="text-muted-foreground">Outstanding Balance:</span> {" "}
-                <span className="font-medium text-destructive">
-                  {formatCurrency(selectedStudent.totalAmountDue - selectedStudent.totalAmountPaid)}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
+          <FormField
+            control={form.control}
+            name="indexNumber"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Index Number</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="e.g. BC/ITS/24/001" 
+                    {...field} 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
+        {/* Payment Purpose */}
         <FormField
           control={form.control}
           name="paymentPurpose"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Payment Purpose</FormLabel>
+              <FormLabel>What are you paying for?</FormLabel>
               <Select 
                 onValueChange={field.onChange} 
                 defaultValue={field.value}
@@ -245,7 +211,7 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value={PAYMENT_PURPOSES.BOOK}>Book</SelectItem>
+                  <SelectItem value={PAYMENT_PURPOSES.BOOK}>Textbook</SelectItem>
                   <SelectItem value={PAYMENT_PURPOSES.HANDOUT}>Handout</SelectItem>
                   <SelectItem value={PAYMENT_PURPOSES.TRIP}>Trip</SelectItem>
                   <SelectItem value={PAYMENT_PURPOSES.OTHER}>Other</SelectItem>
@@ -256,10 +222,11 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
           )}
         />
 
+        {/* Course selection (for applicable payment purposes) */}
         {filteredItems.length > 0 && (
           <FormField
             control={form.control}
-            name="itemId"
+            name="courseId"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Select Item</FormLabel>
@@ -286,114 +253,7 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
           />
         )}
 
-        <FormField
-          control={form.control}
-          name="paymentMethod"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Payment Method</FormLabel>
-              <Select 
-                onValueChange={field.onChange} 
-                defaultValue={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select payment method" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value={PAYMENT_METHODS.MOMO}>Mobile Money</SelectItem>
-                  <SelectItem value={PAYMENT_METHODS.CASH}>Cash</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {paymentMethod === PAYMENT_METHODS.CASH && (
-          <FormField
-            control={form.control}
-            name="payerType"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Who is paying?</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value ?? undefined}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select payer" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value={PAYER_TYPES.SELF}>Self (Student)</SelectItem>
-                    <SelectItem value={PAYER_TYPES.THIRD_PARTY}>Third Party</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-
-        {paymentMethod === PAYMENT_METHODS.CASH && payerType === PAYER_TYPES.THIRD_PARTY && (
-          <FormField
-            control={form.control}
-            name="thirdPartyType"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Third Party Type</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value ?? undefined}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select third party type" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value={THIRD_PARTY_TYPES.STUDENT}>Another Student</SelectItem>
-                    <SelectItem value={THIRD_PARTY_TYPES.RELATIVE}>Relative</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-
-        {paymentMethod === PAYMENT_METHODS.CASH && 
-         payerType === PAYER_TYPES.THIRD_PARTY && 
-         thirdPartyType && (
-          <FormField
-            control={form.control}
-            name="thirdPartyDetails"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  {thirdPartyType === THIRD_PARTY_TYPES.STUDENT 
-                    ? "Student's Index Number" 
-                    : "Relative's Details"}
-                </FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder={
-                      thirdPartyType === THIRD_PARTY_TYPES.STUDENT 
-                        ? "e.g. BC/ITS/24/001" 
-                        : "Name & Relationship to student"
-                    } 
-                    {...field} 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-
+        {/* Amount */}
         <FormField
           control={form.control}
           name="amount"
@@ -414,6 +274,140 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
           )}
         />
 
+        {/* Payment Method */}
+        <FormField
+          control={form.control}
+          name="paymentMethod"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Mode of Payment</FormLabel>
+              <Select 
+                onValueChange={field.onChange} 
+                defaultValue={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select payment method" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value={PAYMENT_METHODS.MOMO}>Mobile Money</SelectItem>
+                  <SelectItem value={PAYMENT_METHODS.CASH}>Cash</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Conditional fields based on payment method */}
+        {paymentMethod === PAYMENT_METHODS.MOMO && (
+          <FormField
+            control={form.control}
+            name="transactionReference"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Reference Number</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="Enter MoMo transaction reference" 
+                    {...field} 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {/* Cash payment options */}
+        {paymentMethod === PAYMENT_METHODS.CASH && (
+          <FormField
+            control={form.control}
+            name="payerType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Who is paying?</FormLabel>
+                <Select 
+                  onValueChange={field.onChange} 
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select payer" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value={PAYER_TYPES.SELF}>Paying by myself (Student)</SelectItem>
+                    <SelectItem value={PAYER_TYPES.THIRD_PARTY}>Third Party</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {/* Third party type for cash payments */}
+        {paymentMethod === PAYMENT_METHODS.CASH && 
+         payerType === PAYER_TYPES.THIRD_PARTY && (
+          <FormField
+            control={form.control}
+            name="thirdPartyType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Is the third party a student?</FormLabel>
+                <Select 
+                  onValueChange={field.onChange} 
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select third party type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value={THIRD_PARTY_TYPES.STUDENT}>Yes, another student</SelectItem>
+                    <SelectItem value={THIRD_PARTY_TYPES.RELATIVE}>No, not a student</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {/* Third party details */}
+        {paymentMethod === PAYMENT_METHODS.CASH && 
+         payerType === PAYER_TYPES.THIRD_PARTY && 
+         thirdPartyType && (
+          <FormField
+            control={form.control}
+            name="thirdPartyDetails"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  {thirdPartyType === THIRD_PARTY_TYPES.STUDENT 
+                    ? "Student's Index Number" 
+                    : "Third Party Name & Relationship"}
+                </FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder={
+                      thirdPartyType === THIRD_PARTY_TYPES.STUDENT 
+                        ? "e.g. BC/ITS/24/001" 
+                        : "Name & Relationship to student"
+                    } 
+                    {...field} 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {/* Optional notes */}
         <FormField
           control={form.control}
           name="notes"
@@ -431,12 +425,13 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
           )}
         />
 
+        {/* Form actions */}
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
           <Button type="submit">
-            Record Payment
+            Submit Payment
           </Button>
         </div>
       </form>
