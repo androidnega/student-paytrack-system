@@ -5,7 +5,7 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
+    --background: 0 0% 100%;
     --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
@@ -14,74 +14,80 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 215 60% 50%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary: Blue */
+    --primary: 210 100% 50%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
+    /* Secondary: Red */
+    --secondary: 0 80% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Yellow accent */
+    --accent: 50 100% 50%;
+    --accent-foreground: 222 47% 11%;
 
     --muted: 210 40% 96%;
     --muted-foreground: 215 16% 47%;
-
-    --accent: 215 60% 95%;
-    --accent-foreground: 222 47% 11%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 215 60% 50%;
+    --ring: 210 100% 50%;
 
     --radius: 0.5rem;
 
     --sidebar-background: 210 40% 98%;
     --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 215 60% 50%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 215 60% 95%;
+    --sidebar-primary: 210 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 50 100% 50%;
     --sidebar-accent-foreground: 222 47% 11%;
     --sidebar-border: 214 32% 91%;
-    --sidebar-ring: 215 60% 50%;
+    --sidebar-ring: 210 100% 50%;
   }
 
   .dark {
     --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    --foreground: 0 0% 100%;
 
     --card: 222 47% 11%;
-    --card-foreground: 210 40% 98%;
+    --card-foreground: 0 0% 100%;
 
     --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 215 60% 50%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary: Blue */
+    --primary: 210 100% 50%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217 33% 18%;
-    --secondary-foreground: 210 40% 98%;
+    /* Secondary: Red */
+    --secondary: 0 80% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Yellow accent */
+    --accent: 50 100% 50%;
+    --accent-foreground: 222 47% 11%;
 
     --muted: 217 33% 18%;
     --muted-foreground: 215 20% 65%;
-
-    --accent: 217 33% 18%;
-    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 217 33% 18%;
     --input: 217 33% 18%;
-    --ring: 215 60% 50%;
+    --ring: 210 100% 50%;
 
     --sidebar-background: 222 47% 11%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 215 60% 50%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 217 33% 18%;
-    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 210 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 50 100% 50%;
+    --sidebar-accent-foreground: 222 47% 11%;
     --sidebar-border: 217 33% 18%;
-    --sidebar-ring: 215 60% 50%;
+    --sidebar-ring: 210 100% 50%;
   }
 }
 
@@ -131,6 +137,48 @@
   
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* School colors utility classes */
+  .bg-school-blue {
+    @apply bg-primary;
+  }
+  
+  .bg-school-red {
+    @apply bg-secondary;
+  }
+  
+  .bg-school-yellow {
+    @apply bg-accent;
+  }
+  
+  .bg-school-white {
+    @apply bg-white dark:bg-gray-900;
+  }
+
+  .text-school-blue {
+    @apply text-primary;
+  }
+  
+  .text-school-red {
+    @apply text-secondary;
+  }
+  
+  .text-school-yellow {
+    @apply text-accent;
+  }
+  
+  .text-school-white {
+    @apply text-white dark:text-gray-100;
+  }
+
+  /* School-themed gradient backgrounds */
+  .bg-school-gradient-1 {
+    @apply bg-gradient-to-r from-secondary via-primary to-accent;
+  }
+  
+  .bg-school-gradient-2 {
+    @apply bg-gradient-to-br from-primary to-secondary;
   }
 }
 
