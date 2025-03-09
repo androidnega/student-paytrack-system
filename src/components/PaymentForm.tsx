@@ -116,6 +116,12 @@ const sampleItems: Item[] = [
 export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
   const [items, setItems] = useState<Item[]>(sampleItems);
   const [filteredItems, setFilteredItems] = useState<Item[]>([]);
+  const [transactionCode, setTransactionCode] = useState<string>("");
+  
+  // Generate a transaction code when the component mounts
+  useEffect(() => {
+    setTransactionCode(generateTransactionCode());
+  }, []);
   
   const form = useForm<PaymentFormValues>({
     resolver: zodResolver(paymentFormSchema),
@@ -182,7 +188,6 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
   }, [payerType, form]);
 
   const handleSubmit = (values: PaymentFormValues) => {
-    const transactionCode = generateTransactionCode();
     onSubmit({
       ...values,
       transactionCode,
@@ -192,6 +197,15 @@ export function PaymentForm({ onSubmit, onCancel }: PaymentFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        {/* Transaction Code Display */}
+        <div className="p-3 bg-muted rounded-md">
+          <h3 className="text-sm font-medium text-muted-foreground mb-1">Transaction Code</h3>
+          <p className="text-lg font-mono bg-background px-2 py-1 inline-block rounded">{transactionCode}</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Keep this code safe. Students will need it to verify their payment.
+          </p>
+        </div>
+        
         {/* Student Information */}
         <div className="space-y-4">
           <FormField

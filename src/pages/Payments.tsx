@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { 
@@ -40,8 +39,7 @@ const mockSettings: SystemSettings = {
   contactEmail: "computerscience@ttu.edu.gh",
   contactPhone: "+233 302 123 4567",
   websiteUrl: "https://cs.ttu.edu.gh",
-  // SMS settings
-  smsEnabled: true, // For demo we'll set this to true
+  smsEnabled: true,
   smsProvider: "mnotify",
   smsApiKey: "demo-api-key",
   smsApiUrl: "https://api.mnotify.com/api/sms/quick",
@@ -63,9 +61,7 @@ export default function Payments() {
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [settings, setSettings] = useState<SystemSettings>(mockSettings);
 
-  // Simulating fetching settings from an API or context
   useEffect(() => {
-    // In a real app, this would fetch from an API or use a context
     console.log("Fetching settings...");
   }, []);
 
@@ -95,35 +91,31 @@ export default function Payments() {
   });
 
   const handleAddPayment = async (formData: any) => {
-    // Find or create student based on form data
     let student = mockStudents.find(s => 
       s.indexNumber.toLowerCase() === formData.indexNumber.toLowerCase()
     );
     
     if (!student) {
-      // Create a new student when one doesn't exist
       const newStudentId = `student-${Date.now()}`;
       student = {
         id: newStudentId,
         name: formData.studentName,
         indexNumber: formData.indexNumber,
-        email: "", // Could be collected in a more complete form
-        phone: "", // Could be collected in a more complete form
-        specialization: formData.indexNumber.split('/')[1] as any, // Extract from index number
-        group: "A", // Default group
+        email: "",
+        phone: "",
+        specialization: formData.indexNumber.split('/')[1] as any,
+        group: "A",
         academicYear: CURRENT_ACADEMIC_YEAR,
-        totalAmountDue: formData.amount, // Initial amount due
+        totalAmountDue: formData.amount,
         totalAmountPaid: 0,
         paymentStatus: PAYMENT_STATUS.OUTSTANDING,
         createdAt: new Date(),
         updatedAt: new Date()
       };
       
-      // Add the new student to mockStudents
       mockStudents.push(student);
     }
 
-    // Create the new payment record
     const newPayment: Payment = {
       id: `payment-${Date.now()}`,
       studentId: student.id,
@@ -134,7 +126,7 @@ export default function Payments() {
       thirdPartyType: formData.thirdPartyType || undefined,
       thirdPartyDetails: formData.thirdPartyDetails || undefined,
       itemId: formData.courseId,
-      transactionCode: formData.transactionReference || formData.transactionCode,
+      transactionCode: formData.transactionCode,
       paymentDate: new Date(),
       recordedBy: "current-user-id",
       notes: formData.notes,
@@ -142,7 +134,6 @@ export default function Payments() {
       updatedAt: new Date(),
     };
 
-    // Update student payment info
     student.totalAmountPaid += formData.amount;
     if (student.totalAmountPaid >= student.totalAmountDue) {
       student.paymentStatus = PAYMENT_STATUS.FULL;
@@ -151,7 +142,6 @@ export default function Payments() {
     }
     student.updatedAt = new Date();
 
-    // Add the new payment to the payments list
     setPayments([newPayment, ...payments]);
     setIsAddingPayment(false);
     
@@ -159,14 +149,11 @@ export default function Payments() {
       description: `Transaction code: ${newPayment.transactionCode}`,
     });
 
-    // SMS notification logic
     if (student && settings.smsEnabled && student.phone) {
-      // Determine if this is a full or partial payment
       const totalPaid = student.totalAmountPaid;
       const isFullPayment = totalPaid >= student.totalAmountDue;
       const remainingBalance = Math.max(0, student.totalAmountDue - totalPaid);
       
-      // Prepare and send SMS
       const templateKey = isFullPayment ? 'fullPayment' : 'partialPayment';
       const template = settings.smsTemplates[templateKey];
       
